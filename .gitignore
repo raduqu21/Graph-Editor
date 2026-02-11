@@ -1,0 +1,25 @@
+# CMake build files (daca ai construit in folderul sursa)
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+!CMakeLists.txt
+
+# Folderul de build (unde se face compilarea de obicei)
+build/
+build-*/
+debug/
+release/
+bin/
+
+# Qt Creator settings
+CMakeLists.txt.user
+*.pro.user
+*.pro.user.*
+
+# IDE & OS temporary files
+.vscode/
+.idea/
+.DS_Store
+*.autosave

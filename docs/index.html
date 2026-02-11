@@ -1398,6 +1398,144 @@
 
         }
 
+        /* ===== BIBLIOGRAPHY ===== */
+
+        .bibliography {
+
+            padding: 100px 0;
+
+            background: var(--bg-primary);
+
+            position: relative;
+
+        }
+
+        .bibliography::before {
+
+            content: '';
+
+            position: absolute;
+
+            top: 0;
+
+            left: 0;
+
+            right: 0;
+
+            height: 1px;
+
+            background: linear-gradient(90deg, transparent, var(--border-card), transparent);
+
+        }
+
+        .bib-grid {
+
+            display: grid;
+
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+
+            gap: 24px;
+
+            margin-top: 48px;
+
+        }
+
+        .bib-item {
+
+            background: var(--bg-card);
+
+            border: 1px solid var(--border-card);
+
+            border-radius: var(--radius-sm);
+
+            padding: 24px;
+
+            transition: all var(--transition);
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 12px;
+
+        }
+
+        .bib-item:hover {
+
+            border-color: var(--accent-blue);
+
+            transform: translateY(-2px);
+
+            background: var(--bg-card-hover);
+
+        }
+
+        .bib-author {
+
+            font-weight: 700;
+
+            color: var(--text-primary);
+
+            font-size: 0.95rem;
+
+        }
+
+        .bib-title {
+
+            color: var(--text-secondary);
+
+            font-style: italic;
+
+            font-size: 0.9rem;
+
+        }
+
+        .bib-meta {
+
+            font-size: 0.8rem;
+
+            color: var(--text-muted);
+
+            font-family: 'JetBrains Mono', monospace;
+
+        }
+
+        .bib-link {
+
+            color: var(--accent-blue);
+
+            text-decoration: none;
+
+            font-size: 0.85rem;
+
+            word-break: break-all;
+
+            margin-top: auto;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+        }
+
+        .bib-link:hover {
+
+            color: #0090ee;
+
+            text-decoration: underline;
+
+        }
+
+        .bib-link svg {
+
+            width: 14px;
+
+            height: 14px;
+
+        }
+
         /* ===== FOOTER ===== */
 
         .footer {
@@ -1573,7 +1711,7 @@
 
             <a href="#" class="nav-logo">
 
-                <img src="logo.png" alt="GraphEditor Logo" style="height: 40px; width: auto;">
+                <img src="logo.png" alt="GraphEditor Logo" style="height: 60px; width: auto;">
 
                 GraphEditor
 
@@ -2126,6 +2264,148 @@
                         </svg>
 
                         Vezi pe GitHub
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- ===== BIBLIOGRAPHY ===== -->
+
+    <section class="bibliography" id="bibliography">
+
+        <div class="container">
+
+            <div class="reveal">
+
+                <span class="section-label">Referințe</span>
+
+                <h2 class="section-title">Bibliografie și Resurse</h2>
+
+                <p class="section-subtitle">Sursele de documentare, tehnologiile utilizate și inspirația din spatele
+                    proiectului GraphEditor.</p>
+
+            </div>
+
+            <div class="bib-grid">
+
+                <!-- Google Gemini -->
+
+                <div class="bib-item reveal">
+
+                    <div class="bib-author">Google. (2024).</div>
+
+                    <div class="bib-title">Google Gemini (AI Model & Coding Assistant).</div>
+
+                    <a href="https://gemini.google.com/" class="bib-link" target="_blank">
+
+                        https://gemini.google.com/
+
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+
+                    </a>
+
+                </div>
+
+                <!-- Google AntiGravity -->
+
+                <div class="bib-item reveal">
+
+                    <div class="bib-author">Google AntiGravity.</div>
+
+                    <div class="bib-title">(Agent Manager IDE). [Software].</div>
+
+                    <a href="https://antigravity.google/" class="bib-link" target="_blank">
+
+                        https://antigravity.google/
+
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+
+                    </a>
+
+                </div>
+
+                <!-- Qt 6 -->
+
+                <div class="bib-item reveal">
+
+                    <div class="bib-author">The Qt Company. (2024).</div>
+
+                    <div class="bib-title">Qt 6 Documentation: QGraphicsScene & Core Modules. [Online].</div>
+
+                    <a href="https://doc.qt.io/qt-6/" class="bib-link" target="_blank">
+
+                        https://doc.qt.io/qt-6/
+
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+
+                    </a>
+
+                </div>
+
+
+
+                <!-- Pbinfo -->
+
+                <div class="bib-item reveal">
+
+                    <div class="bib-author">Pbinfo.ro</div>
+
+                    <div class="bib-title">Platformă educațională pentru algoritmi și programare.</div>
+
+                    <a href="https://www.pbinfo.ro/" class="bib-link" target="_blank">
+
+                        https://www.pbinfo.ro/
+
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+
+                    </a>
+
+                </div>
+
+                <!-- OpenCV -->
+
+                <div class="bib-item reveal">
+
+                    <div class="bib-author">OpenCV Team. (2024).</div>
+
+                    <div class="bib-title">Open Source Computer Vision Library Documentation. [Online].</div>
+
+                    <a href="https://docs.opencv.org/" class="bib-link" target="_blank">
+
+                        https://docs.opencv.org/
+
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
 
                     </a>
 

@@ -1,0 +1,2380 @@
+<!DOCTYPE html>
+
+<html lang="ro">
+
+<head>
+
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>GraphEditor — Vizualizează Algoritmii. Înțelege Grafurile.</title>
+
+    <meta name="description"
+        content="GraphEditor este o aplicație desktop educațională scrisă în C++ cu Qt 6. Învață Teoria Grafurilor prin vizualizare interactivă a algoritmilor BFS și DFS." />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap"
+        rel="stylesheet" />
+
+    <style>
+        /* ===== RESET & BASE ===== */
+
+        *,
+
+        *::before,
+
+        *::after {
+
+            margin: 0;
+
+            padding: 0;
+
+            box-sizing: border-box;
+
+        }
+
+        :root {
+
+            --bg-primary: #0d0d0d;
+
+            --bg-secondary: #1e1e1e;
+
+            --bg-card: #161616;
+
+            --bg-card-hover: #1c1c1c;
+
+            --accent-blue: #007acc;
+
+            --accent-blue-glow: rgba(0, 122, 204, 0.25);
+
+            --accent-green: #4caf50;
+
+            --accent-green-glow: rgba(76, 175, 80, 0.25);
+
+            --text-primary: #e8e8e8;
+
+            --text-secondary: #a0a0a0;
+
+            --text-muted: #666;
+
+            --border-subtle: rgba(255, 255, 255, 0.06);
+
+            --border-card: rgba(255, 255, 255, 0.08);
+
+            --radius: 16px;
+
+            --radius-sm: 10px;
+
+            --transition: 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+        }
+
+        html {
+
+            scroll-behavior: smooth;
+
+        }
+
+        body {
+
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+            background: var(--bg-primary);
+
+            color: var(--text-primary);
+
+            line-height: 1.6;
+
+            overflow-x: hidden;
+
+            -webkit-font-smoothing: antialiased;
+
+        }
+
+        /* ===== UTILITIES ===== */
+
+        .container {
+
+            max-width: 1200px;
+
+            margin: 0 auto;
+
+            padding: 0 24px;
+
+        }
+
+        .section-label {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            font-family: 'JetBrains Mono', monospace;
+
+            font-size: 0.75rem;
+
+            font-weight: 500;
+
+            text-transform: uppercase;
+
+            letter-spacing: 3px;
+
+            color: var(--accent-blue);
+
+            margin-bottom: 16px;
+
+        }
+
+        .section-label::before {
+
+            content: '';
+
+            width: 24px;
+
+            height: 1px;
+
+            background: var(--accent-blue);
+
+        }
+
+        .section-title {
+
+            font-size: clamp(2rem, 4vw, 3rem);
+
+            font-weight: 800;
+
+            line-height: 1.15;
+
+            margin-bottom: 16px;
+
+            letter-spacing: -0.02em;
+
+        }
+
+        .section-subtitle {
+
+            font-size: 1.05rem;
+
+            color: var(--text-secondary);
+
+            max-width: 580px;
+
+            line-height: 1.7;
+
+        }
+
+        /* ===== SCROLL REVEAL ===== */
+
+        .reveal {
+
+            opacity: 0;
+
+            transform: translateY(40px);
+
+            transition: opacity 0.8s ease, transform 0.8s ease;
+
+        }
+
+        .reveal.active {
+
+            opacity: 1;
+
+            transform: translateY(0);
+
+        }
+
+        /* ===== NAVBAR ===== */
+
+        .navbar {
+
+            position: fixed;
+
+            top: 0;
+
+            left: 0;
+
+            width: 100%;
+
+            z-index: 1000;
+
+            padding: 16px 0;
+
+            transition: background var(--transition), box-shadow var(--transition);
+
+        }
+
+        .navbar.scrolled {
+
+            background: rgba(13, 13, 13, 0.85);
+
+            backdrop-filter: blur(20px);
+
+            -webkit-backdrop-filter: blur(20px);
+
+            box-shadow: 0 1px 0 var(--border-subtle);
+
+        }
+
+        .navbar .container {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+        }
+
+        .nav-logo {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            font-weight: 700;
+
+            font-size: 1.15rem;
+
+            color: var(--text-primary);
+
+            text-decoration: none;
+
+        }
+
+        .nav-logo-icon {
+
+            width: 36px;
+
+            height: 36px;
+
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+
+            border-radius: 10px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 1rem;
+
+        }
+
+        .nav-links {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 32px;
+
+            list-style: none;
+
+        }
+
+        .nav-links a {
+
+            color: var(--text-secondary);
+
+            text-decoration: none;
+
+            font-size: 0.9rem;
+
+            font-weight: 500;
+
+            transition: color var(--transition);
+
+        }
+
+        .nav-links a:hover {
+
+            color: var(--text-primary);
+
+        }
+
+        .nav-cta {
+
+            background: var(--accent-blue);
+
+            color: #fff !important;
+
+            padding: 8px 20px;
+
+            border-radius: 8px;
+
+            font-weight: 600;
+
+            transition: background var(--transition), transform var(--transition) !important;
+
+        }
+
+        .nav-cta:hover {
+
+            background: #0090ee;
+
+            transform: translateY(-1px);
+
+        }
+
+        /* Mobile menu */
+
+        .nav-toggle {
+
+            display: none;
+
+            background: none;
+
+            border: none;
+
+            cursor: pointer;
+
+            width: 32px;
+
+            height: 24px;
+
+            position: relative;
+
+        }
+
+        .nav-toggle span {
+
+            display: block;
+
+            width: 100%;
+
+            height: 2px;
+
+            background: var(--text-primary);
+
+            border-radius: 2px;
+
+            position: absolute;
+
+            left: 0;
+
+            transition: var(--transition);
+
+        }
+
+        .nav-toggle span:nth-child(1) {
+
+            top: 0;
+
+        }
+
+        .nav-toggle span:nth-child(2) {
+
+            top: 11px;
+
+        }
+
+        .nav-toggle span:nth-child(3) {
+
+            top: 22px;
+
+        }
+
+        /* ===== HERO ===== */
+
+        .hero {
+
+            min-height: 100vh;
+
+            display: flex;
+
+            align-items: center;
+
+            position: relative;
+
+            padding: 120px 0 80px;
+
+            overflow: hidden;
+
+        }
+
+        /* Animated background grid */
+
+        .hero-bg {
+
+            position: absolute;
+
+            inset: 0;
+
+            z-index: 0;
+
+            overflow: hidden;
+
+        }
+
+        .hero-bg::before {
+
+            content: '';
+
+            position: absolute;
+
+            inset: 0;
+
+            background-image:
+
+                radial-gradient(circle at 25% 35%, var(--accent-blue-glow) 0%, transparent 50%),
+
+                radial-gradient(circle at 75% 65%, var(--accent-green-glow) 0%, transparent 50%);
+
+            animation: heroPulse 8s ease-in-out infinite alternate;
+
+        }
+
+        @keyframes heroPulse {
+
+            0% {
+
+                opacity: 0.5;
+
+            }
+
+            100% {
+
+                opacity: 1;
+
+            }
+
+        }
+
+        .hero-grid {
+
+            position: absolute;
+
+            inset: 0;
+
+            background-image:
+
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+
+            background-size: 60px 60px;
+
+        }
+
+        .hero .container {
+
+            position: relative;
+
+            z-index: 1;
+
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 60px;
+
+            align-items: center;
+
+        }
+
+        .hero-badge {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            background: rgba(0, 122, 204, 0.1);
+
+            border: 1px solid rgba(0, 122, 204, 0.2);
+
+            padding: 6px 16px;
+
+            border-radius: 100px;
+
+            font-size: 0.8rem;
+
+            font-weight: 500;
+
+            color: var(--accent-blue);
+
+            margin-bottom: 24px;
+
+            font-family: 'JetBrains Mono', monospace;
+
+        }
+
+        .hero-badge .dot {
+
+            width: 6px;
+
+            height: 6px;
+
+            background: var(--accent-green);
+
+            border-radius: 50%;
+
+            animation: blink 2s infinite;
+
+        }
+
+        @keyframes blink {
+
+            0%,
+
+            100% {
+
+                opacity: 1;
+
+            }
+
+            50% {
+
+                opacity: 0.3;
+
+            }
+
+        }
+
+        .hero h1 {
+
+            font-size: clamp(2.5rem, 5.5vw, 4.2rem);
+
+            font-weight: 900;
+
+            line-height: 1.08;
+
+            letter-spacing: -0.03em;
+
+            margin-bottom: 24px;
+
+        }
+
+        .hero h1 .gradient-text {
+
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+
+            -webkit-background-clip: text;
+
+            -webkit-text-fill-color: transparent;
+
+            background-clip: text;
+
+        }
+
+        .hero-description {
+
+            font-size: 1.15rem;
+
+            color: var(--text-secondary);
+
+            line-height: 1.8;
+
+            margin-bottom: 40px;
+
+            max-width: 520px;
+
+        }
+
+        .hero-buttons {
+
+            display: flex;
+
+            gap: 16px;
+
+            flex-wrap: wrap;
+
+        }
+
+        .btn {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            padding: 14px 28px;
+
+            border-radius: 12px;
+
+            font-size: 0.95rem;
+
+            font-weight: 600;
+
+            text-decoration: none;
+
+            transition: all var(--transition);
+
+            cursor: pointer;
+
+            border: none;
+
+            font-family: inherit;
+
+        }
+
+        .btn-primary {
+
+            background: var(--accent-blue);
+
+            color: #fff;
+
+            box-shadow: 0 4px 24px var(--accent-blue-glow);
+
+        }
+
+        .btn-primary:hover {
+
+            background: #0090ee;
+
+            transform: translateY(-2px);
+
+            box-shadow: 0 8px 32px var(--accent-blue-glow);
+
+        }
+
+        .btn-outline {
+
+            background: transparent;
+
+            color: var(--text-primary);
+
+            border: 1px solid var(--border-card);
+
+        }
+
+        .btn-outline:hover {
+
+            border-color: var(--accent-blue);
+
+            background: rgba(0, 122, 204, 0.06);
+
+            transform: translateY(-2px);
+
+        }
+
+        .hero-stats {
+
+            display: flex;
+
+            gap: 40px;
+
+            margin-top: 48px;
+
+            padding-top: 32px;
+
+            border-top: 1px solid var(--border-subtle);
+
+        }
+
+        .hero-stat h3 {
+
+            font-size: 1.5rem;
+
+            font-weight: 800;
+
+            color: var(--accent-blue);
+
+        }
+
+        .hero-stat p {
+
+            font-size: 0.8rem;
+
+            color: var(--text-muted);
+
+            text-transform: uppercase;
+
+            letter-spacing: 1px;
+
+            margin-top: 4px;
+
+        }
+
+        /* Hero Visual — animated graph */
+
+        .hero-visual {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+        }
+
+        .hero-graph-container {
+
+            width: 100%;
+
+            max-width: 480px;
+
+            aspect-ratio: 1;
+
+            position: relative;
+
+        }
+
+        .hero-graph-container svg {
+
+            width: 100%;
+
+            height: 100%;
+
+        }
+
+        .graph-edge {
+
+            stroke: rgba(255, 255, 255, 0.08);
+
+            stroke-width: 2;
+
+            transition: stroke 0.6s;
+
+        }
+
+        .graph-edge.active {
+
+            stroke: var(--accent-green);
+
+            stroke-width: 2.5;
+
+            filter: drop-shadow(0 0 6px var(--accent-green-glow));
+
+        }
+
+        .graph-node {
+
+            transition: fill 0.4s, r 0.4s;
+
+            cursor: pointer;
+
+        }
+
+        .graph-node.visited {
+
+            fill: var(--accent-green);
+
+            filter: drop-shadow(0 0 10px var(--accent-green-glow));
+
+        }
+
+        .graph-node-label {
+
+            fill: var(--text-primary);
+
+            font-family: 'JetBrains Mono', monospace;
+
+            font-size: 13px;
+
+            font-weight: 600;
+
+            text-anchor: middle;
+
+            dominant-baseline: central;
+
+            pointer-events: none;
+
+        }
+
+        /* ===== FEATURES ===== */
+
+        .features {
+
+            padding: 120px 0;
+
+            position: relative;
+
+        }
+
+        .features-header {
+
+            text-align: center;
+
+            margin-bottom: 64px;
+
+        }
+
+        .features-header .section-subtitle {
+
+            margin: 0 auto;
+
+        }
+
+        .features-grid {
+
+            display: grid;
+
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+
+            gap: 20px;
+
+        }
+
+        .feature-card {
+
+            background: var(--bg-card);
+
+            border: 1px solid var(--border-card);
+
+            border-radius: var(--radius);
+
+            padding: 36px 28px;
+
+            transition: all var(--transition);
+
+            position: relative;
+
+            overflow: hidden;
+
+        }
+
+        .feature-card::before {
+
+            content: '';
+
+            position: absolute;
+
+            top: 0;
+
+            left: 0;
+
+            right: 0;
+
+            height: 2px;
+
+            background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
+
+            opacity: 0;
+
+            transition: opacity var(--transition);
+
+        }
+
+        .feature-card:hover {
+
+            background: var(--bg-card-hover);
+
+            border-color: rgba(0, 122, 204, 0.15);
+
+            transform: translateY(-4px);
+
+        }
+
+        .feature-card:hover::before {
+
+            opacity: 1;
+
+        }
+
+        .feature-icon {
+
+            width: 52px;
+
+            height: 52px;
+
+            border-radius: 14px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 1.4rem;
+
+            margin-bottom: 20px;
+
+        }
+
+        .feature-icon.blue {
+
+            background: rgba(0, 122, 204, 0.12);
+
+            color: var(--accent-blue);
+
+        }
+
+        .feature-icon.green {
+
+            background: rgba(76, 175, 80, 0.12);
+
+            color: var(--accent-green);
+
+        }
+
+        .feature-card h3 {
+
+            font-size: 1.15rem;
+
+            font-weight: 700;
+
+            margin-bottom: 10px;
+
+        }
+
+        .feature-card p {
+
+            font-size: 0.9rem;
+
+            color: var(--text-secondary);
+
+            line-height: 1.7;
+
+        }
+
+        /* ===== SCREENSHOTS ===== */
+
+        .screenshots {
+
+            padding: 120px 0;
+
+            background: var(--bg-secondary);
+
+            position: relative;
+
+        }
+
+        .screenshots::before {
+
+            content: '';
+
+            position: absolute;
+
+            top: 0;
+
+            left: 0;
+
+            right: 0;
+
+            height: 1px;
+
+            background: linear-gradient(90deg, transparent, var(--border-card), transparent);
+
+        }
+
+        .screenshots-header {
+
+            text-align: center;
+
+            margin-bottom: 64px;
+
+        }
+
+        .screenshots-header .section-subtitle {
+
+            margin: 0 auto;
+
+        }
+
+        .screenshots-grid {
+
+            display: grid;
+
+            grid-template-columns: repeat(3, 1fr);
+
+            gap: 20px;
+
+        }
+
+        .screenshot-card {
+
+            border-radius: var(--radius);
+
+            overflow: hidden;
+
+            border: 1px solid var(--border-card);
+
+            background: var(--bg-card);
+
+            transition: all var(--transition);
+
+        }
+
+        .screenshot-card:hover {
+
+            transform: translateY(-4px);
+
+            border-color: rgba(0, 122, 204, 0.2);
+
+        }
+
+        .screenshot-placeholder {
+
+            aspect-ratio: 16 / 10;
+
+            background: linear-gradient(135deg, #161616 0%, #1e1e1e 100%);
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 12px;
+
+            color: var(--text-muted);
+
+            font-size: 0.85rem;
+
+            position: relative;
+
+            overflow: hidden;
+
+        }
+
+        .screenshot-placeholder::before {
+
+            content: '';
+
+            position: absolute;
+
+            inset: 0;
+
+            background-image:
+
+                radial-gradient(circle at 30% 50%, rgba(0, 122, 204, 0.06) 0%, transparent 60%),
+
+                radial-gradient(circle at 70% 50%, rgba(76, 175, 80, 0.06) 0%, transparent 60%);
+
+        }
+
+        .screenshot-placeholder .icon {
+
+            font-size: 2rem;
+
+            opacity: 0.4;
+
+        }
+
+        .screenshot-info {
+
+            padding: 16px 20px;
+
+        }
+
+        .screenshot-info h4 {
+
+            font-size: 0.9rem;
+
+            font-weight: 600;
+
+            margin-bottom: 4px;
+
+        }
+
+        .screenshot-info p {
+
+            font-size: 0.78rem;
+
+            color: var(--text-muted);
+
+        }
+
+        .screenshot-media {
+
+            width: 100%;
+
+            height: auto;
+
+            aspect-ratio: 16/10;
+
+            object-fit: cover;
+
+            display: block;
+
+            border-bottom: 1px solid var(--border-card);
+
+        }
+
+        /* ===== TECH CORNER ===== */
+
+        .tech {
+
+            padding: 120px 0;
+
+            position: relative;
+
+        }
+
+        .tech-layout {
+
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 60px;
+
+            align-items: center;
+
+        }
+
+        .tech-stack {
+
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 16px;
+
+        }
+
+        .tech-item {
+
+            background: var(--bg-card);
+
+            border: 1px solid var(--border-card);
+
+            border-radius: var(--radius-sm);
+
+            padding: 24px;
+
+            text-align: center;
+
+            transition: all var(--transition);
+
+        }
+
+        .tech-item:hover {
+
+            border-color: rgba(0, 122, 204, 0.2);
+
+            transform: translateY(-2px);
+
+        }
+
+        .tech-item .tech-icon {
+
+            font-size: 2.2rem;
+
+            margin-bottom: 12px;
+
+        }
+
+        .tech-item h4 {
+
+            font-size: 1rem;
+
+            font-weight: 700;
+
+            margin-bottom: 4px;
+
+        }
+
+        .tech-item p {
+
+            font-size: 0.78rem;
+
+            color: var(--text-muted);
+
+        }
+
+        /* ===== SOURCE CODE ===== */
+
+        .source {
+
+            padding: 120px 0;
+
+            background: var(--bg-secondary);
+
+            position: relative;
+
+        }
+
+        .source::before {
+
+            content: '';
+
+            position: absolute;
+
+            top: 0;
+
+            left: 0;
+
+            right: 0;
+
+            height: 1px;
+
+            background: linear-gradient(90deg, transparent, var(--border-card), transparent);
+
+        }
+
+        .source-layout {
+
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 60px;
+
+            align-items: start;
+
+        }
+
+        .terminal {
+
+            background: #0a0a0a;
+
+            border: 1px solid var(--border-card);
+
+            border-radius: var(--radius);
+
+            overflow: hidden;
+
+            font-family: 'JetBrains Mono', monospace;
+
+        }
+
+        .terminal-header {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            padding: 14px 20px;
+
+            background: rgba(255, 255, 255, 0.03);
+
+            border-bottom: 1px solid var(--border-card);
+
+        }
+
+        .terminal-dot {
+
+            width: 10px;
+
+            height: 10px;
+
+            border-radius: 50%;
+
+        }
+
+        .terminal-dot.red {
+
+            background: #ff5f57;
+
+        }
+
+        .terminal-dot.yellow {
+
+            background: #ffbd2e;
+
+        }
+
+        .terminal-dot.green {
+
+            background: #28c840;
+
+        }
+
+        .terminal-title {
+
+            margin-left: 12px;
+
+            font-size: 0.75rem;
+
+            color: var(--text-muted);
+
+        }
+
+        .terminal-body {
+            padding: 24px;
+            font-size: 0.82rem;
+            line-height: 1.4;
+            overflow-x: auto;
+
+        }
+
+        .terminal-body .comment {
+
+            color: #6a737d;
+
+        }
+
+        .terminal-body .keyword {
+
+            color: #c678dd;
+
+        }
+
+        .terminal-body .type {
+
+            color: #e5c07b;
+
+        }
+
+        .terminal-body .function {
+
+            color: #61afef;
+
+        }
+
+        .terminal-body .string {
+
+            color: #98c379;
+
+        }
+
+        .terminal-body .number {
+
+            color: #d19a66;
+
+        }
+
+        .terminal-body .preprocessor {
+
+            color: #e06c75;
+
+        }
+
+        .source-info {
+
+            padding-top: 20px;
+
+        }
+
+        .source-info .section-title {
+
+            font-size: clamp(1.8rem, 3vw, 2.4rem);
+
+        }
+
+        .github-btn {
+
+            margin-top: 32px;
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            background: #24292e;
+
+            color: #fff;
+
+            padding: 14px 28px;
+
+            border-radius: 12px;
+
+            text-decoration: none;
+
+            font-weight: 600;
+
+            font-size: 0.95rem;
+
+            transition: all var(--transition);
+
+            border: 1px solid rgba(255, 255, 255, 0.08);
+
+        }
+
+        .github-btn:hover {
+
+            background: #2f363d;
+
+            transform: translateY(-2px);
+
+        }
+
+        .github-btn svg {
+
+            width: 22px;
+
+            height: 22px;
+
+            fill: #fff;
+
+        }
+
+        /* ===== FOOTER ===== */
+
+        .footer {
+
+            padding: 48px 0;
+
+            border-top: 1px solid var(--border-subtle);
+
+        }
+
+        .footer .container {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            flex-wrap: wrap;
+
+            gap: 20px;
+
+        }
+
+        .footer-copyright {
+
+            font-size: 0.85rem;
+
+            color: var(--text-muted);
+
+        }
+
+        .footer-links {
+
+            display: flex;
+
+            gap: 24px;
+
+        }
+
+        .footer-links a {
+
+            color: var(--text-muted);
+
+            text-decoration: none;
+
+            font-size: 0.85rem;
+
+            transition: color var(--transition);
+
+        }
+
+        .footer-links a:hover {
+
+            color: var(--accent-blue);
+
+        }
+
+        /* ===== RESPONSIVE ===== */
+
+        @media (max-width: 960px) {
+
+            .hero .container {
+
+                grid-template-columns: 1fr;
+
+                text-align: center;
+
+            }
+
+            .hero-description {
+
+                margin: 0 auto 40px;
+
+            }
+
+            .hero-buttons {
+
+                justify-content: center;
+
+            }
+
+            .hero-stats {
+
+                justify-content: center;
+
+            }
+
+            .hero-visual {
+
+                order: -1;
+
+                margin-bottom: 20px;
+
+            }
+
+            .hero-graph-container {
+
+                max-width: 320px;
+
+            }
+
+            .tech-layout,
+
+            .source-layout {
+
+                grid-template-columns: 1fr;
+
+            }
+
+            .screenshots-grid {
+
+                grid-template-columns: 1fr 1fr;
+
+            }
+
+            .nav-links {
+
+                display: none;
+
+            }
+
+            .nav-toggle {
+
+                display: block;
+
+            }
+
+        }
+
+        @media (max-width: 640px) {
+
+            .screenshots-grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
+            .hero-stats {
+
+                flex-direction: column;
+
+                align-items: center;
+
+                gap: 20px;
+
+            }
+
+            .features-grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
+            .tech-stack {
+
+                grid-template-columns: 1fr;
+
+            }
+
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <!-- ===== NAVBAR ===== -->
+
+    <nav class="navbar" id="navbar">
+
+        <div class="container">
+
+            <a href="#" class="nav-logo">
+
+                <img src="logo.png" alt="GraphEditor Logo" style="height: 40px; width: auto;">
+
+                GraphEditor
+
+            </a>
+
+            <ul class="nav-links">
+
+                <li><a href="#features">Funcționalități</a></li>
+
+                <li><a href="#screenshots">Demo</a></li>
+
+                <li><a href="#tech">Tehnologii</a></li>
+
+                <li><a href="#source">Cod Sursă</a></li>
+
+                <li><a href="#" class="nav-cta">Descarcă</a></li>
+
+            </ul>
+
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+
+                <span></span><span></span><span></span>
+
+            </button>
+
+        </div>
+
+    </nav>
+
+    <!-- ===== HERO ===== -->
+
+    <section class="hero" id="hero">
+
+        <div class="hero-bg">
+
+            <div class="hero-grid"></div>
+
+        </div>
+
+        <div class="container">
+
+            <div class="hero-content">
+
+                <div class="hero-badge">
+
+                    <span class="dot"></span>
+
+                    Qt 6 · C++ · Desktop
+
+                </div>
+
+                <h1>
+
+                    Vizualizează Algoritmii.<br />
+
+                    <span class="gradient-text">Înțelege Grafurile.</span>
+
+                </h1>
+
+                <p class="hero-description">
+
+                    Aplicație desktop educațională scrisă în C++ cu Qt 6.
+
+                    Desenează grafuri, rulează BFS & DFS și urmărește animațiile în timp real.
+
+                </p>
+
+                <div class="hero-buttons">
+
+                    <a href="Graph Editor.zip" class="btn btn-primary" download>
+
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+
+                            <polyline points="7 10 12 15 17 10" />
+
+                            <line x1="12" y1="15" x2="12" y2="3" />
+
+                        </svg>
+
+                        Descarcă
+
+                    </a>
+
+                    <a href="https://github.com/raduqu21/Graph-Editor" class="btn btn-outline" target="_blank">
+
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+                            <polyline points="16 18 22 12 16 6" />
+
+                            <polyline points="8 6 2 12 8 18" />
+
+                        </svg>
+
+                        Vezi Codul Sursă
+
+                    </a>
+
+                </div>
+
+                <div class="hero-stats">
+
+                    <div class="hero-stat">
+
+                        <h3>C++17</h3>
+
+                        <p>Performanță Nativă</p>
+
+                    </div>
+
+                    <div class="hero-stat">
+
+                        <h3>Qt 6</h3>
+
+                        <p>Framework Modern</p>
+
+                    </div>
+
+                    <div class="hero-stat">
+
+                        <h3>Desktop</h3>
+
+                        <p>Windows & Linux</p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Animated SVG Graph -->
+
+            <div class="hero-visual">
+
+                <div class="hero-graph-container">
+
+                    <svg viewBox="0 0 400 400" id="heroGraph">
+
+                        <!-- Edges -->
+
+                        <line class="graph-edge" x1="200" y1="60" x2="100" y2="160" data-edge="0-1" />
+
+                        <line class="graph-edge" x1="200" y1="60" x2="300" y2="160" data-edge="0-2" />
+
+                        <line class="graph-edge" x1="100" y1="160" x2="60" y2="280" data-edge="1-3" />
+
+                        <line class="graph-edge" x1="100" y1="160" x2="180" y2="260" data-edge="1-4" />
+
+                        <line class="graph-edge" x1="300" y1="160" x2="240" y2="280" data-edge="2-5" />
+
+                        <line class="graph-edge" x1="300" y1="160" x2="340" y2="280" data-edge="2-6" />
+
+                        <line class="graph-edge" x1="60" y1="280" x2="140" y2="350" data-edge="3-7" />
+
+                        <line class="graph-edge" x1="240" y1="280" x2="300" y2="360" data-edge="5-8" />
+
+                        <!-- Nodes -->
+
+                        <circle class="graph-node" cx="200" cy="60" r="22" fill="#2a2a2a" stroke="var(--accent-blue)"
+                            stroke-width="2" data-node="0" />
+
+                        <circle class="graph-node" cx="100" cy="160" r="22" fill="#2a2a2a" stroke="var(--accent-blue)"
+                            stroke-width="2" data-node="1" />
+
+                        <circle class="graph-node" cx="300" cy="160" r="22" fill="#2a2a2a" stroke="var(--accent-blue)"
+                            stroke-width="2" data-node="2" />
+
+                        <circle class="graph-node" cx="60" cy="280" r="22" fill="#2a2a2a" stroke="var(--accent-blue)"
+                            stroke-width="2" data-node="3" />
+
+                        <circle class="graph-node" cx="180" cy="260" r="22" fill="#2a2a2a" stroke="var(--accent-blue)"
+                            stroke-width="2" data-node="4" />
+
+                        <circle class="graph-node" cx="240" cy="280" r="22" fill="#2a2a2a" stroke="var(--accent-blue)"
+                            stroke-width="2" data-node="5" />
+
+                        <circle class="graph-node" cx="340" cy="280" r="22" fill="#2a2a2a" stroke="var(--accent-blue)"
+                            stroke-width="2" data-node="6" />
+
+                        <circle class="graph-node" cx="140" cy="350" r="22" fill="#2a2a2a" stroke="var(--accent-blue)"
+                            stroke-width="2" data-node="7" />
+
+                        <circle class="graph-node" cx="300" cy="360" r="22" fill="#2a2a2a" stroke="var(--accent-blue)"
+                            stroke-width="2" data-node="8" />
+
+                        <!-- Labels -->
+
+                        <text class="graph-node-label" x="200" y="60">A</text>
+
+                        <text class="graph-node-label" x="100" y="160">B</text>
+
+                        <text class="graph-node-label" x="300" y="160">C</text>
+
+                        <text class="graph-node-label" x="60" y="280">D</text>
+
+                        <text class="graph-node-label" x="180" y="260">E</text>
+
+                        <text class="graph-node-label" x="240" y="280">F</text>
+
+                        <text class="graph-node-label" x="340" y="280">G</text>
+
+                        <text class="graph-node-label" x="140" y="350">H</text>
+
+                        <text class="graph-node-label" x="300" y="360">I</text>
+
+                    </svg>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- ===== FEATURES ===== -->
+
+    <section class="features" id="features">
+
+        <div class="container">
+
+            <div class="features-header reveal">
+
+                <span class="section-label">Funcționalități</span>
+
+                <h2 class="section-title">Tot ce ai nevoie pentru<br />studiul grafurilor</h2>
+
+                <p class="section-subtitle">De la desenarea intuitivă a nodurilor, la vizualizarea pas cu pas a celor
+
+                    mai importanți algoritmi.</p>
+
+            </div>
+
+            <div class="features-grid">
+
+                <div class="feature-card reveal">
+
+                    <div class="feature-icon blue">🖥️</div>
+
+                    <h3>Interfață Intuitivă</h3>
+
+                    <p>Desenează grafuri natural prin click și drag-and-drop. Interfață modernă construită cu Qt
+
+                        Widgets, ușor de utilizat pentru orice student.</p>
+
+                </div>
+
+                <div class="feature-card reveal">
+
+                    <div class="feature-icon green">⚡</div>
+
+                    <h3>Algoritmi Live</h3>
+
+                    <p>Rulează BFS și DFS și urmărește animația parcurgerii în timp real. Nodurile își schimbă culoarea
+
+                        pe măsură ce algoritmul le vizitează.</p>
+
+                </div>
+
+                <div class="feature-card reveal">
+
+                    <div class="feature-icon blue">🚀</div>
+
+                    <h3>Viteza C++</h3>
+
+                    <p>Performanță nativă datorită codului C++ compilat direct pe desktop. Fără overhead de mașină
+
+                        virtuală, fără lag.</p>
+
+                </div>
+
+                <div class="feature-card reveal">
+
+                    <div class="feature-icon green">🧰</div>
+
+                    <h3>Flexibilitate Totală</h3>
+
+                    <p>Moduri dedicate pentru fiecare acțiune: adăugare și ștergere noduri, trasare muchii, reindexare,
+
+                        selectare nod start și ștergere graf completă.</p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- ===== SCREENSHOTS ===== -->
+
+    <section class="screenshots" id="screenshots">
+
+        <div class="container">
+
+            <div class="screenshots-header reveal">
+
+                <span class="section-label">Demo</span>
+
+                <h2 class="section-title">Aplicația în acțiune</h2>
+
+                <p class="section-subtitle">Capturile de ecran de mai jos prezintă interfața GraphEditor pe desktop.</p>
+
+            </div>
+
+            <div class="screenshots-grid">
+
+                <div class="screenshot-card reveal">
+
+                    <img src="interfata.png" alt="Interfața Principală" class="screenshot-media">
+
+                    <div class="screenshot-info">
+
+                        <h4>Interfața Principală</h4>
+
+                        <p>Ecranul de editare a grafurilor cu toolbox-ul lateral</p>
+
+                    </div>
+
+                </div>
+
+                <div class="screenshot-card reveal">
+
+                    <video src="bfs.mp4" autoplay loop muted playsinline class="screenshot-media"></video>
+
+                    <div class="screenshot-info">
+
+                        <h4>Animație BFS</h4>
+
+                        <p>Parcurgerea în lățime cu nodurile colorate în timp real</p>
+
+                    </div>
+
+                </div>
+
+                <div class="screenshot-card reveal">
+
+                    <video src="dfs.mp4" autoplay loop muted playsinline class="screenshot-media"></video>
+
+                    <div class="screenshot-info">
+
+                        <h4>Parcurgere DFS</h4>
+
+                        <p>Explorarea în adâncime a grafului, evidențiată pas cu pas pentru o înțelegere clară a
+
+                            algoritmului.</p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- ===== TECH CORNER ===== -->
+
+    <section class="tech" id="tech">
+
+        <div class="container">
+
+            <div class="tech-layout">
+
+                <div class="reveal">
+
+                    <span class="section-label">Technical Corner</span>
+
+                    <h2 class="section-title">Construit cu<br />tehnologii de top</h2>
+
+                    <p class="section-subtitle" style="margin-bottom: 20px;">Fiecare componentă este aleasă pentru a
+
+                        oferi performanță maximă pe desktop, fără compromisuri.</p>
+
+                    <p class="section-subtitle">Aplicația folosește CMake ca build system și compilează nativ, oferind o
+
+                        experiență fluidă pe Windows și Linux.</p>
+
+                </div>
+
+                <div class="tech-stack reveal">
+
+                    <div class="tech-item">
+
+                        <div class="tech-icon">⚙️</div>
+
+                        <h4>C++17</h4>
+
+                        <p>Limbaj de bază</p>
+
+                    </div>
+
+                    <div class="tech-item">
+
+                        <div class="tech-icon">🖼️</div>
+
+                        <h4>Qt 6</h4>
+
+                        <p>Framework GUI</p>
+
+                    </div>
+
+                    <div class="tech-item">
+
+                        <div class="tech-icon">📦</div>
+
+                        <h4>CMake</h4>
+
+                        <p>Build System</p>
+
+                    </div>
+
+                    <div class="tech-item">
+
+                        <div class="tech-icon">🧩</div>
+
+                        <h4>Qt Widgets</h4>
+
+                        <p>Componente GUI</p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- ===== SOURCE CODE ===== -->
+
+    <section class="source" id="source">
+
+        <div class="container">
+
+            <div class="source-layout">
+
+                <div class="terminal reveal">
+
+                    <div class="terminal-header">
+
+                        <span class="terminal-dot red"></span>
+
+                        <span class="terminal-dot yellow"></span>
+
+                        <span class="terminal-dot green"></span>
+
+                        <span class="terminal-title">window.cpp — GraphEditor</span>
+
+                    </div>
+
+                    <div class="terminal-body">
+
+                        <pre><span class="comment">// Algoritm BFS — animație vizuală</span>
+
+<span class="keyword">void</span> <span class="type">window</span>::<span class="function">executaBFS</span>() {
+
+    <span class="keyword">if</span> (!nodStart) <span class="keyword">return</span>;
+
+    <span class="function">reseteazaCulorile</span>();
+
+    <span class="type">QQueue</span>&lt;<span class="keyword">int</span>&gt; coada;
+
+    <span class="type">QSet</span>&lt;<span class="keyword">int</span>&gt; vizitate;
+
+    coada.<span class="function">enqueue</span>(nodStart-&gt;id);
+
+    vizitate.<span class="function">insert</span>(nodStart-&gt;id);
+
+    <span class="keyword">while</span> (!coada.<span class="function">isEmpty</span>()) {
+
+        <span class="keyword">int</span> idCurent = coada.<span class="function">dequeue</span>();
+
+        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;n : noduri) {
+
+            <span class="keyword">if</span> (n.id == idCurent) {
+
+                <span class="comment">// Animație: schimbă culoarea nodului</span>
+
+                n.cerc-&gt;<span class="function">setBrush</span>(
+
+                    <span class="type">QBrush</span>(<span class="type">QColor</span>(<span class="number">135</span>, <span class="number">206</span>, <span class="number">235</span>))
+
+                );
+
+                <span class="type">QCoreApplication</span>::<span class="function">processEvents</span>();
+
+                <span class="type">QThread</span>::<span class="function">msleep</span>(<span class="number">500</span>);
+
+                <span class="type">QList</span>&lt;<span class="keyword">int</span>&gt; veciniSortati = n.vecini;
+
+                std::<span class="function">sort</span>(
+
+                    veciniSortati.<span class="function">begin</span>(),
+
+                    veciniSortati.<span class="function">end</span>()
+
+                );
+
+                <span class="keyword">for</span> (<span class="keyword">int</span> idVecin : veciniSortati) {
+
+                    <span class="keyword">if</span> (!vizitate.<span class="function">contains</span>(idVecin)) {
+
+                        vizitate.<span class="function">insert</span>(idVecin);
+
+                        coada.<span class="function">enqueue</span>(idVecin);
+
+                    }
+
+                }
+
+                <span class="keyword">break</span>;
+
+            }
+
+        }
+
+    }
+
+    <span class="function">reseteazaCulorile</span>();
+
+}</pre>
+
+                    </div>
+
+                </div>
+
+                <div class="source-info reveal">
+
+                    <span class="section-label">Open Source</span>
+
+                    <h2 class="section-title">Cod sursă deschis.<br />Contribuie oricând.</h2>
+
+                    <p class="section-subtitle">Întregul cod este disponibil pe GitHub. Studiază implementarea
+
+                        algoritmilor, propune îmbunătățiri sau adaptează aplicația pentru propriul tău laborator.</p>
+
+                    <a href="https://github.com/raduqu21/Graph-Editor" class="github-btn" target="_blank">
+
+                        <svg viewBox="0 0 24 24">
+
+                            <path
+                                d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.744.083-.73.083-.73 1.205.085 1.838 1.237 1.838 1.237 1.07 1.834 2.807 1.304 3.492.997.108-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.3 1.23A11.51 11.51 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.29-1.552 3.297-1.23 3.297-1.23.653 1.652.242 2.873.118 3.176.77.84 1.235 1.91 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222 0 1.606-.015 2.898-.015 3.293 0 .322.216.694.825.576C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z" />
+
+                        </svg>
+
+                        Vezi pe GitHub
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+
+    <footer class="footer">
+
+        <div class="container">
+
+            <p class="footer-copyright">© 2025 GraphEditor — Birceanu Radu-Petrișor & Stancu Mario-Cătălin. Toate
+
+                drepturile rezervate.</p>
+
+            <div class="footer-links">
+
+                <a href="https://github.com/raduqu21/Graph-Editor" target="_blank">GitHub</a>
+
+                <a href="#">Documentație</a>
+
+                <a href="#">Contact</a>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+    <!-- ===== JAVASCRIPT ===== -->
+
+    <script>
+
+        // Scroll reveal
+
+        const revealElements = document.querySelectorAll('.reveal');
+
+        const revealOnScroll = () => {
+
+            const windowHeight = window.innerHeight;
+
+            revealElements.forEach(el => {
+
+                const top = el.getBoundingClientRect().top;
+
+                if (top < windowHeight - 80) {
+
+                    el.classList.add('active');
+
+                }
+
+            });
+
+        };
+
+        window.addEventListener('scroll', revealOnScroll);
+
+        window.addEventListener('load', revealOnScroll);
+
+        // Navbar scroll effect
+
+        const navbar = document.getElementById('navbar');
+
+        window.addEventListener('scroll', () => {
+
+            navbar.classList.toggle('scrolled', window.scrollY > 40);
+
+        });
+
+        // Mobile nav toggle (basic)
+
+        const navToggle = document.getElementById('navToggle');
+
+        const navLinks = document.querySelector('.nav-links');
+
+        navToggle.addEventListener('click', () => {
+
+            const isOpen = navLinks.style.display === 'flex';
+
+            navLinks.style.display = isOpen ? 'none' : 'flex';
+
+            if (!isOpen) {
+
+                navLinks.style.flexDirection = 'column';
+
+                navLinks.style.position = 'absolute';
+
+                navLinks.style.top = '64px';
+
+                navLinks.style.right = '24px';
+
+                navLinks.style.background = 'rgba(13,13,13,0.95)';
+
+                navLinks.style.backdropFilter = 'blur(20px)';
+
+                navLinks.style.padding = '20px';
+
+                navLinks.style.borderRadius = '12px';
+
+                navLinks.style.border = '1px solid rgba(255,255,255,0.08)';
+
+                navLinks.style.gap = '16px';
+
+            }
+
+        });
+
+        // ===== Animated BFS on hero graph =====
+
+        // Adjacency list (sorted neighbors for deterministic BFS)
+
+        const graph = {
+
+            0: [1, 2],
+
+            1: [3, 4],
+
+            2: [5, 6],
+
+            3: [7],
+
+            4: [5],
+
+            5: [8],
+
+            6: [],
+
+            7: [],
+
+            8: []
+
+        };
+
+        function animateBFS(startNode) {
+
+            const nodeEls = document.querySelectorAll('.graph-node');
+
+            const edgeEls = document.querySelectorAll('.graph-edge');
+
+            // Reset all visuals
+
+            nodeEls.forEach(n => {
+
+                n.classList.remove('visited');
+
+                n.setAttribute('fill', '#2a2a2a');
+
+            });
+
+            edgeEls.forEach(e => e.classList.remove('active'));
+
+            // Correct BFS: build animation steps
+
+            const visited = new Set();
+
+            const queue = [startNode];
+
+            visited.add(startNode);
+
+            const steps = [];
+
+            // Step 1: visit the start node
+
+            steps.push({ type: 'node', id: startNode });
+
+            while (queue.length > 0) {
+
+                const current = queue.shift();
+
+                // Explore neighbors in sorted order
+
+                const neighbors = graph[current];
+
+                for (const neighbor of neighbors) {
+
+                    if (!visited.has(neighbor)) {
+
+                        visited.add(neighbor);
+
+                        queue.push(neighbor);
+
+                        // First highlight the edge, then the neighbor node
+
+                        steps.push({ type: 'edge', from: current, to: neighbor });
+
+                        steps.push({ type: 'node', id: neighbor });
+
+                    }
+
+                }
+
+            }
+
+            // Animate each step sequentially
+
+            steps.forEach((step, i) => {
+
+                setTimeout(() => {
+
+                    if (step.type === 'node') {
+
+                        const node = document.querySelector(`[data-node="${step.id}"]`);
+
+                        if (node) {
+
+                            node.classList.add('visited');
+
+                            node.setAttribute('fill', '#4caf50');
+
+                        }
+
+                    } else if (step.type === 'edge') {
+
+                        const edge = document.querySelector(`[data-edge="${step.from}-${step.to}"]`) ||
+
+                            document.querySelector(`[data-edge="${step.to}-${step.from}"]`);
+
+                        if (edge) edge.classList.add('active');
+
+                    }
+
+                }, i * 500);
+
+            });
+
+            // Restart after animation completes
+
+            const totalTime = steps.length * 500 + 2500;
+
+            setTimeout(() => animateBFS(0), totalTime);
+
+        }
+
+        // Start animation after page load
+
+        window.addEventListener('load', () => {
+
+            setTimeout(() => animateBFS(0), 1500);
+
+        });
+
+    </script>
+
+</body>
+
+</html>
